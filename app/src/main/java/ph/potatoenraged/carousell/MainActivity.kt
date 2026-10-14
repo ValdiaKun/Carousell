@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Button
@@ -70,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 else androidx.compose.material3.lightColorScheme()
             ) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    CarousellHome(onToggleDarkMode = {
+                    CarousellHome(isDarkMode = darkMode, onToggleDarkMode = {
                         darkMode = !darkMode
                         getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
                             .edit()
@@ -106,7 +107,7 @@ private fun saveRecentSearches(context: Context, searches: List<String>) {
 }
 
 @Composable
-private fun CarousellHome(onToggleDarkMode: () -> Unit) {
+private fun CarousellHome(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf("") }
     var activeSearch by rememberSaveable { mutableStateOf<String?>(null) }
@@ -153,7 +154,14 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                 Text("Your native marketplace companion", style = MaterialTheme.typography.bodyMedium)
             }
             IconButton(onClick = onToggleDarkMode) {
-                Icon(Icons.Default.DarkMode, contentDescription = "Toggle dark mode")
+                Icon(
+                    imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                    contentDescription = if (isDarkMode) {
+                        "Switch to light mode"
+                    } else {
+                        "Switch to dark mode"
+                    }
+                )
             }
         }
 

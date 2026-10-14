@@ -1,13 +1,13 @@
 package ph.potatoenraged.carousell
 
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,7 +43,7 @@ class CarousellHomeUiTest {
         composeRule.onNodeWithText("Edit search").performClick()
 
         composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
-        composeRule.onNodeWithText("iPhone 13").assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assertTextContains("iPhone 13")
     }
 
     @Test
@@ -61,7 +61,7 @@ class CarousellHomeUiTest {
     @Test
     fun everyCategoryShortcutOpensNativeResults() {
         listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles").forEach { category ->
-            composeRule.onNodeWithText(category).performClick()
+            composeRule.onNodeWithText(category).performScrollTo().assertIsDisplayed().performClick()
 
             composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
             composeRule.onNodeWithText(category).assertIsDisplayed()
@@ -131,7 +131,11 @@ class CarousellHomeUiTest {
                 .getBoolean("dark_mode", false)
         }
 
-        composeRule.onNodeWithContentDescription("Toggle dark mode").performClick()
+        val initialAction = if (initialDarkMode) "Switch to light mode" else "Switch to dark mode"
+        val toggledAction = if (initialDarkMode) "Switch to dark mode" else "Switch to light mode"
+        composeRule.onNodeWithContentDescription(initialAction).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(initialAction).performClick()
+        composeRule.onNodeWithContentDescription(toggledAction).assertIsDisplayed()
         composeRule.activityRule.scenario.onActivity { activity ->
             assertTrue(
                 activity.getSharedPreferences("carousell_companion", 0)
@@ -140,7 +144,7 @@ class CarousellHomeUiTest {
         }
 
         composeRule.activityRule.scenario.recreate()
-        composeRule.onNodeWithContentDescription("Toggle dark mode").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(toggledAction).assertIsDisplayed()
         composeRule.activityRule.scenario.onActivity { activity ->
             assertTrue(
                 activity.getSharedPreferences("carousell_companion", 0)
