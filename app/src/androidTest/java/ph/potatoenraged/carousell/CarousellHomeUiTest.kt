@@ -85,6 +85,22 @@ class CarousellHomeUiTest {
     }
 
     @Test
+    fun clearAllRecentSearchesRemovesHistorySection() {
+        listOf("clear-history-alpha", "clear-history-beta").forEach { term ->
+            composeRule.onNode(hasSetTextAction()).performTextInput(term)
+            composeRule.onNodeWithText("Search marketplace").performClick()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+        }
+
+        composeRule.onNodeWithText("Recent searches").assertIsDisplayed()
+        composeRule.onNodeWithText("Clear").performClick()
+
+        composeRule.onNodeWithText("Recent searches").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Remove clear-history-alpha").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Remove clear-history-beta").assertDoesNotExist()
+    }
+
+    @Test
     fun recentSearchPersistsAcrossActivityRecreation() {
         val term = "persisted-history-regression"
         composeRule.onNode(hasSetTextAction()).performTextInput(term)
