@@ -6,6 +6,20 @@ import org.junit.Test
 
 class SearchHistoryTest {
     @Test
+    fun unicodeCaseVariantsUseTheSameEqualityAcrossHistoryOperations() {
+        val variants = listOf("I", "\u0131", "\u0130", "i")
+        assertEquals(listOf("I"), normalizeSearchHistory(variants))
+        assertEquals(listOf("i", "camera"), addRecentSearch("i", variants + "camera"))
+        assertEquals(listOf("camera"), removeRecentSearch("i", variants + "camera"))
+    }
+
+    @Test
+    fun addingAtCapacityKeepsTheNewestSearchAndDropsTheOldest() {
+        val entries = (1..MAX_RECENT_SEARCHES).map { "item$it" }
+        assertEquals(listOf("new") + entries.dropLast(1), addRecentSearch("new", entries))
+    }
+
+    @Test
     fun addingSearchTrimsAndMovesDuplicateToFront() {
         assertEquals(
             listOf("IPHONE", "camera"),
