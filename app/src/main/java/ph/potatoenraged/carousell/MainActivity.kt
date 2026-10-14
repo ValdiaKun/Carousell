@@ -88,9 +88,16 @@ private fun CarousellHome() {
                 Text("This first build is a native starting point. Account, chat, favorites, and listing actions will use supported Carousell flows rather than private endpoints.")
                 Button(
                     onClick = {
-                        val encoded = Uri.encode(query.trim())
-                        val url = if (query.isBlank()) "https://www.carousell.ph/" else "https://www.carousell.ph/search/\${encoded}/"
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        val base = Uri.parse("https://www.carousell.ph/")
+                        val target = if (query.isBlank()) {
+                            base
+                        } else {
+                            base.buildUpon()
+                                .appendPath("search")
+                                .appendQueryParameter("query", query.trim())
+                                .build()
+                        }
+                        context.startActivity(Intent(Intent.ACTION_VIEW, target))
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text(if (query.isBlank()) "Open Carousell" else "Search on Carousell") }
