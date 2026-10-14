@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 private const val CAROUSELL_HOME = "https://www.carousell.ph/"
 private const val PREFERENCES_NAME = "carousell_companion"
 private const val RECENT_SEARCHES_KEY = "recent_searches"
-private const val MAX_RECENT_SEARCHES = 8
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,12 +74,11 @@ private fun loadRecentSearches(context: Context): List<String> {
         .getString(RECENT_SEARCHES_KEY, null) ?: return emptyList()
     return try {
         val array = JSONArray(saved)
-        buildList {
+        normalizeSearchHistory(buildList {
             for (index in 0 until array.length()) {
-                val value = array.optString(index).trim()
-                if (value.isNotEmpty()) add(value)
+                add(array.optString(index))
             }
-        }.distinctBy { it.lowercase() }.take(MAX_RECENT_SEARCHES)
+        })
     } catch (_: Exception) {
         emptyList()
     }
@@ -119,9 +117,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             return
         }
 
-        recentSearches = (listOf(cleaned) +
-            recentSearches.filterNot { it.equals(cleaned, ignoreCase = true) })
-            .take(MAX_RECENT_SEARCHES)
+        recentSearches = addRecentSearch(cleaned, recentSearches)
         saveRecentSearches(context, recentSearches)
 
         val target = buildCarousellSearchUrl(cleaned)
@@ -232,7 +228,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                             Text(recent, maxLines = 1)
                         }
                         IconButton(onClick = {
-                            recentSearches = recentSearches.filterNot { it == recent }
+                            recentSearches = removeRecentSearch(recent, recentSearches)
                             saveRecentSearches(context, recentSearches)
                         }) {
                             Text("×", style = MaterialTheme.typography.titleLarge)
