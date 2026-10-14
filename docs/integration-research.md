@@ -27,6 +27,14 @@ The public [Carousell GitHub organization](https://github.com/carousell) contain
 
 This was a targeted review, not an exhaustive audit of every repository or private partner offering.
 
+### 3. New marketplace-style API discovery
+
+A search also surfaced [carousell.ai](https://www.carousell.ai/), which describes itself as a separate agent-oriented marketplace with a public listing feed. Its published description is about listings on carousell.ai, not a documented feed for the existing Carousell Philippines consumer marketplace. It therefore does **not** satisfy this app's data-source requirement and must not be wired into Carousell Companion as if its results came from Carousell.ph.
+
+A third-party service, [ReefAPI](https://reefapi.com/carousell-api), advertises Carousell search/listing data. It is not official Carousell documentation, and the public marketing page alone does not establish authorization to redistribute or use its data in this app. Do not integrate it unless the service's terms, technical documentation, and permitted use are reviewed and found compatible with the project's constraints.
+
+**Decision remains unchanged:** no integration is considered approved merely because a URL or API exists. We need an authorized source for the intended Carousell Philippines listings.
+
 ## Implementation decision
 
 - Keep all app screens and navigation native with Kotlin and Jetpack Compose.
@@ -52,6 +60,8 @@ This was a targeted review, not an exhaustive audit of every repository or priva
 - [Carousell Orion](https://github.com/carousell/Orion)
 - [Carousell sellee](https://github.com/carousell/sellee)
 - [API Evangelist Carousell profile](https://github.com/api-evangelist/carousell)
+- [carousell.ai public listing feed description](https://www.carousell.ai/) — separate agent-oriented marketplace, not evidence of a Carousell.ph consumer feed
+- [ReefAPI Carousell API](https://reefapi.com/carousell-api) — third-party offering; authorization and terms not established
 - [Carousell Philippines Terms of Service](https://www.carousell.ph/terms.html)
 
 Re-check official documentation before implementing an integration.
