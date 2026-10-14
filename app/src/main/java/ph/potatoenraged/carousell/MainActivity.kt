@@ -1,13 +1,10 @@
 package ph.potatoenraged.carousell
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import org.json.JSONArray
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Search
@@ -52,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
-private const val CAROUSELL_HOME = "https://www.carousell.ph/"
 private const val PREFERENCES_NAME = "carousell_companion"
 private const val RECENT_SEARCHES_KEY = "recent_searches"
 private const val DARK_MODE_KEY = "dark_mode"
@@ -91,9 +88,7 @@ private fun loadRecentSearches(context: Context): List<String> {
     return try {
         val array = JSONArray(saved)
         normalizeSearchHistory(buildList {
-            for (index in 0 until array.length()) {
-                add(array.optString(index))
-            }
+            for (index in 0 until array.length()) add(array.optString(index))
         })
     } catch (_: Exception) {
         emptyList()
@@ -113,35 +108,26 @@ private fun saveRecentSearches(context: Context, searches: List<String>) {
 private fun CarousellHome(onToggleDarkMode: () -> Unit) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf("") }
+    var activeSearch by rememberSaveable { mutableStateOf<String?>(null) }
     var recentSearches by remember { mutableStateOf(loadRecentSearches(context)) }
-    var launchError by rememberSaveable { mutableStateOf(false) }
     val categories = listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles")
 
-    fun openCarousell(url: String = CAROUSELL_HOME) {
-        try {
-            CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(url))
-            launchError = false
-        } catch (_: ActivityNotFoundException) {
-            launchError = true
-        }
-    }
-
-    fun searchCarousell(value: String) {
+    fun submitSearch(value: String) {
         val cleaned = value.trim()
-        if (cleaned.isEmpty()) {
-            openCarousell()
-            return
-        }
-
+        if (cleaned.isEmpty()) return
+        query = cleaned
         recentSearches = addRecentSearch(cleaned, recentSearches)
         saveRecentSearches(context, recentSearches)
+        activeSearch = cleaned
+    }
 
-        val target = buildCarousellSearchUrl(cleaned)
-        if (target == null) {
-            openCarousell()
-        } else {
-            openCarousell(target)
-        }
+    if (activeSearch != null) {
+        NativeSearchScreen(
+            query = activeSearch!!,
+            onBack = { activeSearch = null },
+            onEditSearch = { query = it; activeSearch = null }
+        )
+        return
     }
 
     Column(
@@ -156,18 +142,10 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(
-                Icons.Default.Storefront,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Icon(Icons.Default.Storefront, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "Carousell Companion",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text("A lightweight personal launcher", style = MaterialTheme.typography.bodyMedium)
+                Text("Carousell Companion", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("Your native marketplace companion", style = MaterialTheme.typography.bodyMedium)
             }
             IconButton(onClick = onToggleDarkMode) {
                 Icon(Icons.Default.DarkMode, contentDescription = "Toggle dark mode")
@@ -190,25 +168,14 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                 }
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { searchCarousell(query) })
+            keyboardActions = KeyboardActions(onSearch = { submitSearch(query) })
         )
 
-        Button(
-            onClick = { searchCarousell(query) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (query.isBlank()) "Open Carousell" else "Search Carousell")
+        Button(onClick = { submitSearch(query) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Search marketplace")
         }
 
-        if (launchError) {
-            Text(
-                "Could not open a browser tab. Please make sure a web browser is installed.",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-
-        Text("Browse categories", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("Explore categories", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -216,7 +183,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             categories.forEach { category ->
                 FilterChip(
                     selected = false,
-                    onClick = { query = category; searchCarousell(category) },
+                    onClick = { query = category; submitSearch(category) },
                     label = { Text(category) }
                 )
             }
@@ -232,9 +199,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                 TextButton(onClick = {
                     recentSearches = emptyList()
                     saveRecentSearches(context, recentSearches)
-                }) {
-                    Text("Clear")
-                }
+                }) { Text("Clear") }
             }
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 recentSearches.forEach { recent ->
@@ -244,20 +209,13 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         OutlinedButton(
-                            onClick = {
-                                query = recent
-                                searchCarousell(recent)
-                            },
+                            onClick = { query = recent; submitSearch(recent) },
                             modifier = Modifier.weight(1f)
-                        ) {
-                            Text(recent, maxLines = 1)
-                        }
+                        ) { Text(recent, maxLines = 1) }
                         IconButton(onClick = {
                             recentSearches = removeRecentSearch(recent, recentSearches)
                             saveRecentSearches(context, recentSearches)
-                        }) {
-                            Text("×", style = MaterialTheme.typography.titleLarge)
-                        }
+                        }) { Icon(Icons.Default.Close, contentDescription = "Remove $recent") }
                     }
                 }
             }
@@ -266,35 +224,56 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            )
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
         ) {
-            Column(
-                modifier = Modifier.padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    "Your marketplace, one tap away",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    "Search and browsing open on Carousell's official site. This app does not ask for your Carousell password or use private endpoints."
-                )
-                OutlinedButton(
-                    onClick = { openCarousell() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Browse marketplace")
-                }
+            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Built for a native experience", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("Search stays inside this app. Live Carousell listings will appear here once a supported data integration is available.")
+            }
+        }
+    }
+}
+
+@Composable
+private fun NativeSearchScreen(
+    query: String,
+    onBack: () -> Unit,
+    onEditSearch: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Search", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(query, style = MaterialTheme.typography.bodyMedium)
             }
         }
 
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+        ) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Text("Native results screen", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "This screen is inside Carousell Companion. Live listings are not connected yet, so we won't show invented products or redirect you to a browser."
+                )
+                Text(
+                    "Next requirement: an authorized Carousell integration or another permitted listing data source.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedButton(onClick = { onEditSearch(query) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Edit search")
+                }
+            }
+        }
         Spacer(Modifier.height(2.dp))
-        Text(
-            "Personal-use preview • Direct account features require an authorized integration.",
-            style = MaterialTheme.typography.bodySmall
-        )
     }
 }
