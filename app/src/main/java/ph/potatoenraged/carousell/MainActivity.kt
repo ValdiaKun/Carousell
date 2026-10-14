@@ -88,7 +88,7 @@ private fun loadRecentSearches(context: Context): List<String> {
 
 private fun saveRecentSearches(context: Context, searches: List<String>) {
     val array = JSONArray()
-    searches.forEach(array::put)
+    searches.forEach { array.put(it) }
     context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
         .edit()
         .putString(RECENT_SEARCHES_KEY, array.toString())
