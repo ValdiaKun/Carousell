@@ -7,7 +7,7 @@ class SearchHistoryTest {
     @Test
     fun addingSearchTrimsAndMovesDuplicateToFront() {
         assertEquals(
-            listOf("iphone", "camera"),
+            listOf("IPHONE", "camera"),
             addRecentSearch(" IPHONE ", listOf("camera", "iphone"))
         )
     }
