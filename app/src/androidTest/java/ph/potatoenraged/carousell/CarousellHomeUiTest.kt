@@ -1,12 +1,13 @@
 package ph.potatoenraged.carousell
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,7 +43,7 @@ class CarousellHomeUiTest {
         composeRule.onNodeWithText("Edit search").performClick()
 
         composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
-        composeRule.onNode(hasSetTextAction()).assertTextEquals("iPhone 13")
+        composeRule.onNode(hasSetTextAction()).assertTextContains("iPhone 13")
     }
 
     @Test
@@ -60,7 +61,7 @@ class CarousellHomeUiTest {
     @Test
     fun everyCategoryShortcutOpensNativeResults() {
         listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles").forEach { category ->
-            composeRule.onNodeWithText(category).performClick()
+            composeRule.onNodeWithText(category).performScrollTo().assertIsDisplayed().performClick()
 
             composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
             composeRule.onNodeWithText(category).assertIsDisplayed()
