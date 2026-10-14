@@ -75,9 +75,26 @@ class CarousellHomeUiTest {
     }
 
     @Test
-    fun darkModeToggleIsAccessible() {
-        composeRule.onNodeWithContentDescription("Toggle dark mode").assertIsDisplayed()
+    fun darkModePreferenceSurvivesActivityRecreation() {
+        composeRule.activityRule.scenario.onActivity { activity ->
+            activity.getSharedPreferences("carousell_companion", 0)
+                .edit()
+                .putBoolean("dark_mode", false)
+                .commit()
+        }
+        composeRule.activityRule.scenario.recreate()
+
         composeRule.onNodeWithContentDescription("Toggle dark mode").performClick()
+        composeRule.activityRule.scenario.onActivity { activity ->
+            assert(activity.getSharedPreferences("carousell_companion", 0)
+                .getBoolean("dark_mode", false))
+        }
+
+        composeRule.activityRule.scenario.recreate()
         composeRule.onNodeWithContentDescription("Toggle dark mode").assertIsDisplayed()
+        composeRule.activityRule.scenario.onActivity { activity ->
+            assert(activity.getSharedPreferences("carousell_companion", 0)
+                .getBoolean("dark_mode", false))
+        }
     }
 }
