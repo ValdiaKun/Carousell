@@ -1,5 +1,6 @@
 package ph.potatoenraged.carousell
 
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasSetTextAction
@@ -37,6 +38,27 @@ class CarousellHomeUiTest {
 
         composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
         composeRule.onNodeWithText("Electronics").assertIsDisplayed()
+    }
+
+    @Test
+    fun submittedSearchAppearsInHistoryAndCanBeRemoved() {
+        val term = "history-regression-needle"
+        composeRule.onNode(hasSetTextAction()).performTextInput(term)
+        composeRule.onNodeWithText("Search marketplace").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
+
+        composeRule.onNodeWithText("Recent searches").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Remove $term").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Remove $term").performClick()
+        composeRule.onNodeWithContentDescription("Clear search").performClick()
+        composeRule.onNodeWithText(term).assertDoesNotExist()
+    }
+
+    @Test
+    fun emptySearchDoesNotOpenResults() {
+        composeRule.onNodeWithText("Search marketplace").performClick()
+        composeRule.onNodeWithText("Native results screen").assertDoesNotExist()
+        composeRule.onNodeWithText("Carousell Companion").assertIsDisplayed()
     }
 
     @Test
