@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import org.json.JSONArray
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -119,6 +120,10 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
         recentSearches = addRecentSearch(cleaned, recentSearches)
         saveRecentSearches(context, recentSearches)
         activeSearch = cleaned
+    }
+
+    BackHandler(enabled = activeSearch != null) {
+        activeSearch = null
     }
 
     if (activeSearch != null) {
