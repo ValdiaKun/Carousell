@@ -290,4 +290,3 @@ private fun NativeSearchScreen(
         Spacer(Modifier.height(2.dp))
     }
 }
-
