@@ -69,6 +69,19 @@ class CarousellHomeUiTest {
     }
 
     @Test
+    fun recentSearchPersistsAcrossActivityRecreation() {
+        val term = "persisted-history-regression"
+        composeRule.onNode(hasSetTextAction()).performTextInput(term)
+        composeRule.onNodeWithText("Search marketplace").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
+
+        composeRule.activityRule.scenario.recreate()
+
+        composeRule.onNodeWithText("Recent searches").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Remove $term").assertIsDisplayed()
+    }
+
+    @Test
     fun emptySearchDoesNotOpenResults() {
         composeRule.onNodeWithText("Search marketplace").performClick()
         composeRule.onNodeWithText("Native results screen").assertDoesNotExist()
