@@ -35,10 +35,18 @@ jobs:
           gradle-version: '8.13'
 
       - name: Run unit tests
-        run: gradle --no-daemon testDebugUnitTest
+        run: gradle --no-daemon testDebugUnitTest --stacktrace --console=plain
+
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: carousell-companion-test-reports
+          path: app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
 
       - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon assembleDebug --stacktrace --console=plain
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
