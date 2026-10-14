@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +31,18 @@ class CarousellHomeUiTest {
 
         composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
         composeRule.onNodeWithText("iPhone 13").assertIsDisplayed()
+    }
+
+    @Test
+    fun systemBackReturnsFromSearchToHome() {
+        composeRule.onNode(hasSetTextAction()).performTextInput("system-back-test")
+        composeRule.onNodeWithText("Search marketplace").performClick()
+        composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
+
+        pressBack()
+
+        composeRule.onNodeWithText("Carousell Companion").assertIsDisplayed()
+        composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
     }
 
     @Test
