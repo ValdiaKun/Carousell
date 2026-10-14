@@ -86,7 +86,10 @@ class CarousellHomeUiTest {
 
     @Test
     fun clearAllRecentSearchesRemovesHistorySection() {
-        listOf("clear-history-alpha", "clear-history-beta").forEach { term ->
+        listOf("clear-history-alpha", "clear-history-beta").forEachIndexed { index, term ->
+            if (index > 0) {
+                composeRule.onNodeWithContentDescription("Clear search").performClick()
+            }
             composeRule.onNode(hasSetTextAction()).performTextInput(term)
             composeRule.onNodeWithText("Search marketplace").performClick()
             composeRule.onNodeWithContentDescription("Back").performClick()
