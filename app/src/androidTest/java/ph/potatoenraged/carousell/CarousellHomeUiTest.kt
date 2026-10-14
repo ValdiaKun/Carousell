@@ -117,6 +117,21 @@ class CarousellHomeUiTest {
     }
 
     @Test
+    fun malformedSavedHistoryDoesNotCrashAndIsNotDisplayed() {
+        composeRule.activityRule.scenario.onActivity { activity ->
+            activity.getSharedPreferences("carousell_companion", 0)
+                .edit()
+                .putString("recent_searches", "{not-valid-json")
+                .commit()
+        }
+        composeRule.activityRule.scenario.recreate()
+
+        composeRule.onNodeWithText("Carousell Companion").assertIsDisplayed()
+        composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
+        composeRule.onNodeWithText("Recent searches").assertDoesNotExist()
+    }
+
+    @Test
     fun emptySearchDoesNotOpenResults() {
         composeRule.onNodeWithText("Search marketplace").performClick()
         composeRule.onNodeWithText("Native results screen").assertDoesNotExist()
