@@ -12,7 +12,7 @@ The latest native-screen build passed GitHub Actions workflow run [#33](https://
 
 ## Build and test
 
-The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run `gradle testDebugUnitTest` followed by `gradle assembleDebug` on JDK 17 with Gradle 8.13.
+The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run JVM unit tests, Android emulator UI tests, and a debug APK build on JDK 17 with Gradle 8.13. The emulator UI test job was recently added and its first run still needs to be verified.
 
 Download the `carousell-companion-debug` artifact from the relevant successful GitHub Actions run. Install only APKs from a build you trust.
 
@@ -36,7 +36,7 @@ See [`docs/integration-research.md`](docs/integration-research.md) for the curre
 ## Next milestones
 
 1. Install and test the latest debug APK on a real Android phone; record any UI or navigation problems.
-2. Improve the native UI and add automated UI coverage for search, recent-search persistence, and theme preference.
+2. Verify the new emulator UI tests in GitHub Actions and expand coverage for recent-search persistence, removal, empty queries, and theme preference.
 3. Investigate official/authorized listing integration options before implementing real result cards.
 4. Once a permitted data source exists, implement native listing models, loading/error/empty states, result cards, listing details, and local favorites.
 5. Measure startup and interaction performance on-device before claiming optimizations.
