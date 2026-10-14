@@ -35,8 +35,8 @@ See [`docs/integration-research.md`](docs/integration-research.md) for the repos
 
 ## Next milestones
 
-1. Confirm CI build success and fix any compilation errors.
+1. Confirm CI unit tests and debug APK build succeed; fix any failures.
 2. Test search handoff and external-app/browser behavior on Android.
-3. Add local preferences and robust URL handling.
-4. Investigate official integration options for account-dependent features.
-5. Add automated UI tests and performance checks.
+3. Add automated UI tests for the main Compose screen and persisted preferences.
+4. Measure startup, search handoff, and scrolling behavior on a real device.
+5. Investigate official integration options for account-dependent features.
