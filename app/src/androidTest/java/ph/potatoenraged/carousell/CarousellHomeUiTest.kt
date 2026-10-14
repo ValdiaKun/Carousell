@@ -131,7 +131,11 @@ class CarousellHomeUiTest {
                 .getBoolean("dark_mode", false)
         }
 
-        composeRule.onNodeWithContentDescription("Toggle dark mode").performClick()
+        val initialAction = if (initialDarkMode) "Switch to light mode" else "Switch to dark mode"
+        val toggledAction = if (initialDarkMode) "Switch to dark mode" else "Switch to light mode"
+        composeRule.onNodeWithContentDescription(initialAction).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(initialAction).performClick()
+        composeRule.onNodeWithContentDescription(toggledAction).assertIsDisplayed()
         composeRule.activityRule.scenario.onActivity { activity ->
             assertTrue(
                 activity.getSharedPreferences("carousell_companion", 0)
@@ -140,7 +144,7 @@ class CarousellHomeUiTest {
         }
 
         composeRule.activityRule.scenario.recreate()
-        composeRule.onNodeWithContentDescription("Toggle dark mode").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(toggledAction).assertIsDisplayed()
         composeRule.activityRule.scenario.onActivity { activity ->
             assertTrue(
                 activity.getSharedPreferences("carousell_companion", 0)
@@ -149,3 +153,4 @@ class CarousellHomeUiTest {
         }
     }
 }
+
