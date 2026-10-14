@@ -6,7 +6,7 @@ A personal-use Android launcher for Carousell Philippines, focused on responsive
 
 The Kotlin/Jetpack Compose project, persistent recent-search history, dedicated search URL builder, unit tests for search URL encoding and history behavior, persistent theme preference, and GitHub Actions workflow are committed. The app currently opens Carousell's official website for browsing/search handoff; it is **not** yet a full native Carousell client and does not directly access account data, messages, favorites, orders, or seller listings.
 
-The Android build has not yet been verified by a confirmed CI result or on a physical device. The CI workflow attempts to compile a debug APK and publish it as a workflow artifact. Recent searches are now stored locally on-device and can be removed individually or cleared.
+The debug APK was successfully built by GitHub Actions and the JVM unit tests passed in [workflow run #27](https://github.com/ValdiaKun/Carousell/actions/runs/38501109346) on 2026-10-14. Physical-device testing remains outstanding. Recent searches are stored locally on-device and can be removed individually or cleared.
 
 ## Build
 
