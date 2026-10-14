@@ -1,12 +1,12 @@
 # Carousell Android Companion
 
-A personal-use Android launcher for Carousell Philippines, focused on responsive native controls, quick search handoff, category shortcuts, recent searches, and a light/dark theme toggle.
+A personal-use Android launcher for Carousell Philippines, focused on responsive native controls, quick search handoff, category shortcuts, persistent recent searches, and a light/dark theme toggle.
 
 ## Current status
 
 The initial Kotlin/Jetpack Compose project and GitHub Actions build workflow are committed. The app currently opens Carousell's official website for browsing/search handoff; it is **not** yet a full native Carousell client and does not directly access account data, messages, favorites, orders, or seller listings.
 
-The Android build has not been independently verified on a physical device yet. The CI workflow attempts to compile a debug APK and publish it as a workflow artifact.
+The Android build has not yet been verified by a confirmed CI result or on a physical device. The CI workflow attempts to compile a debug APK and publish it as a workflow artifact. Recent searches are now stored locally on-device and can be removed individually or cleared.
 
 ## Build
 
