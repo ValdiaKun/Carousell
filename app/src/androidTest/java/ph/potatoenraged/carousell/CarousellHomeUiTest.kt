@@ -27,7 +27,7 @@ class CarousellHomeUiTest {
         composeRule.activityRule.scenario.onActivity { activity ->
             activity.getSharedPreferences("carousell_companion", 0)
                 .edit()
-                .clear()
+                .remove("recent_searches")
                 .commit()
         }
         composeRule.activityRule.scenario.recreate()
@@ -106,17 +106,27 @@ class CarousellHomeUiTest {
 
     @Test
     fun darkModePreferenceSurvivesActivityRecreation() {
+        var initialDarkMode = false
+        composeRule.activityRule.scenario.onActivity { activity ->
+            initialDarkMode = activity.getSharedPreferences("carousell_companion", 0)
+                .getBoolean("dark_mode", false)
+        }
+
         composeRule.onNodeWithContentDescription("Toggle dark mode").performClick()
         composeRule.activityRule.scenario.onActivity { activity ->
-            assertTrue(activity.getSharedPreferences("carousell_companion", 0)
-                .getBoolean("dark_mode", false))
+            assertTrue(
+                activity.getSharedPreferences("carousell_companion", 0)
+                    .getBoolean("dark_mode", false) != initialDarkMode
+            )
         }
 
         composeRule.activityRule.scenario.recreate()
         composeRule.onNodeWithContentDescription("Toggle dark mode").assertIsDisplayed()
         composeRule.activityRule.scenario.onActivity { activity ->
-            assertTrue(activity.getSharedPreferences("carousell_companion", 0)
-                .getBoolean("dark_mode", false))
+            assertTrue(
+                activity.getSharedPreferences("carousell_companion", 0)
+                    .getBoolean("dark_mode", false) != initialDarkMode
+            )
         }
     }
 }
