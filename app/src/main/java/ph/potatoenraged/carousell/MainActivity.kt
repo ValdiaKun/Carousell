@@ -2,12 +2,12 @@ package ph.potatoenraged.carousell
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import org.json.JSONArray
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -119,7 +119,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
 
     fun openCarousell(url: String = CAROUSELL_HOME) {
         try {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(url))
             launchError = false
         } catch (_: ActivityNotFoundException) {
             launchError = true
@@ -202,7 +202,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
 
         if (launchError) {
             Text(
-                "No browser or Carousell app was found to open this link.",
+                "Could not open a browser tab. Please make sure a web browser is installed.",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
