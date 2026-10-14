@@ -4,13 +4,13 @@ A personal-use Android launcher for Carousell Philippines, focused on responsive
 
 ## Current status
 
-The initial Kotlin/Jetpack Compose project and GitHub Actions build workflow are committed. The app currently opens Carousell's official website for browsing/search handoff; it is **not** yet a full native Carousell client and does not directly access account data, messages, favorites, orders, or seller listings.
+The Kotlin/Jetpack Compose project, persistent recent-search history, dedicated search URL builder, URL unit tests, and GitHub Actions workflow are committed. The app currently opens Carousell's official website for browsing/search handoff; it is **not** yet a full native Carousell client and does not directly access account data, messages, favorites, orders, or seller listings.
 
 The Android build has not yet been verified by a confirmed CI result or on a physical device. The CI workflow attempts to compile a debug APK and publish it as a workflow artifact. Recent searches are now stored locally on-device and can be removed individually or cleared.
 
 ## Build
 
-The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run `gradle assembleDebug` on JDK 17 with Gradle 8.13.
+The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run `gradle testDebugUnitTest` followed by `gradle assembleDebug` on JDK 17 with Gradle 8.13.
 
 When a build succeeds, download the `carousell-companion-debug` artifact from the corresponding GitHub Actions run. Install only APKs from a build you trust.
 
