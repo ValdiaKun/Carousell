@@ -1,8 +1,11 @@
 package ph.potatoenraged.carousell
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import org.json.JSONArray
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.horizontalScroll
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Search
@@ -25,14 +29,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +49,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 private const val CAROUSELL_HOME = "https://www.carousell.ph/"
+private const val PREFERENCES_NAME = "carousell_companion"
+private const val RECENT_SEARCHES_KEY = "recent_searches"
+private const val MAX_RECENT_SEARCHES = 8
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,24 +63,53 @@ class MainActivity : ComponentActivity() {
                 else androidx.compose.material3.lightColorScheme()
             ) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    CarousellHome(
-                        onToggleDarkMode = { darkMode = !darkMode }
-                    )
+                    CarousellHome(onToggleDarkMode = { darkMode = !darkMode })
                 }
             }
         }
     }
 }
 
+private fun loadRecentSearches(context: Context): List<String> {
+    val saved = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        .getString(RECENT_SEARCHES_KEY, null) ?: return emptyList()
+    return try {
+        val array = JSONArray(saved)
+        buildList {
+            for (index in 0 until array.length()) {
+                val value = array.optString(index).trim()
+                if (value.isNotEmpty()) add(value)
+            }
+        }.distinctBy { it.lowercase() }.take(MAX_RECENT_SEARCHES)
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
+
+private fun saveRecentSearches(context: Context, searches: List<String>) {
+    val array = JSONArray()
+    searches.forEach(array::put)
+    context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        .edit()
+        .putString(RECENT_SEARCHES_KEY, array.toString())
+        .apply()
+}
+
 @Composable
 private fun CarousellHome(onToggleDarkMode: () -> Unit) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf("") }
-    var recentSearches by rememberSaveable { mutableStateOf(listOf<String>()) }
+    var recentSearches by remember { mutableStateOf(loadRecentSearches(context)) }
+    var launchError by rememberSaveable { mutableStateOf(false) }
     val categories = listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles")
 
     fun openCarousell(url: String = CAROUSELL_HOME) {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            launchError = false
+        } catch (_: ActivityNotFoundException) {
+            launchError = true
+        }
     }
 
     fun searchCarousell(value: String) {
@@ -79,9 +118,13 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             openCarousell()
             return
         }
-        recentSearches = (listOf(cleaned) + recentSearches.filterNot { it.equals(cleaned, ignoreCase = true) })
-            .take(5)
 
+        recentSearches = (listOf(cleaned) +
+            recentSearches.filterNot { it.equals(cleaned, ignoreCase = true) })
+            .take(MAX_RECENT_SEARCHES)
+        saveRecentSearches(context, recentSearches)
+
+        // appendPath safely encodes spaces and special characters as a single search path segment.
         val target = Uri.parse(CAROUSELL_HOME).buildUpon()
             .appendPath("search")
             .appendPath(cleaned)
@@ -92,6 +135,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -113,7 +157,7 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
                 )
                 Text("A lightweight personal launcher", style = MaterialTheme.typography.bodyMedium)
             }
-            OutlinedButton(onClick = onToggleDarkMode) {
+            IconButton(onClick = onToggleDarkMode) {
                 Icon(Icons.Default.DarkMode, contentDescription = "Toggle dark mode")
             }
         }
@@ -135,6 +179,14 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             Text(if (query.isBlank()) "Open Carousell" else "Search Carousell")
         }
 
+        if (launchError) {
+            Text(
+                "No browser or Carousell app was found to open this link.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         Text("Browse categories", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -150,17 +202,41 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
         }
 
         if (recentSearches.isNotEmpty()) {
-            Text("Recent searches", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Recent searches", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = {
+                    recentSearches = emptyList()
+                    saveRecentSearches(context, recentSearches)
+                }) {
+                    Text("Clear")
+                }
+            }
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 recentSearches.forEach { recent ->
-                    OutlinedButton(
-                        onClick = {
-                            query = recent
-                            searchCarousell(recent)
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(recent)
+                        OutlinedButton(
+                            onClick = {
+                                query = recent
+                                searchCarousell(recent)
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(recent, maxLines = 1)
+                        }
+                        IconButton(onClick = {
+                            recentSearches = recentSearches.filterNot { it == recent }
+                            saveRecentSearches(context, recentSearches)
+                        }) {
+                            Text("×", style = MaterialTheme.typography.titleLarge)
+                        }
                     }
                 }
             }
