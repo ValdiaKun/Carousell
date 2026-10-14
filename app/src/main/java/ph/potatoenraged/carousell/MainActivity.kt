@@ -32,7 +32,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -55,7 +54,6 @@ class MainActivity : ComponentActivity() {
             ) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     CarousellHome(
-                        darkMode = darkMode,
                         onToggleDarkMode = { darkMode = !darkMode }
                     )
                 }
@@ -65,13 +63,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun CarousellHome(
-    darkMode: Boolean,
-    onToggleDarkMode: () -> Unit
-) {
+private fun CarousellHome(onToggleDarkMode: () -> Unit) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf("") }
-    val recentSearches = rememberSaveable { mutableStateListOf<String>() }
+    var recentSearches by rememberSaveable { mutableStateOf(listOf<String>()) }
     val categories = listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles")
 
     fun openCarousell(url: String = CAROUSELL_HOME) {
@@ -84,9 +79,8 @@ private fun CarousellHome(
             openCarousell()
             return
         }
-        recentSearches.remove(cleaned)
-        recentSearches.add(0, cleaned)
-        while (recentSearches.size > 5) recentSearches.removeAt(recentSearches.lastIndex)
+        recentSearches = (listOf(cleaned) + recentSearches.filterNot { it.equals(cleaned, ignoreCase = true) })
+            .take(5)
 
         val target = Uri.parse(CAROUSELL_HOME).buildUpon()
             .appendPath("search")
@@ -149,7 +143,7 @@ private fun CarousellHome(
             categories.forEach { category ->
                 FilterChip(
                     selected = false,
-                    onClick = { searchCarousell(category) },
+                    onClick = { query = category; searchCarousell(category) },
                     label = { Text(category) }
                 )
             }
