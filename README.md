@@ -8,11 +8,11 @@ The app has a native home screen and a native search-state screen. Recent search
 
 **Important limitation:** live marketplace listings are not connected yet. The search screen explicitly explains this instead of showing fabricated products or silently redirecting the user. The app is currently a native UI foundation, not yet a full marketplace client.
 
-The latest native-screen build passed GitHub Actions workflow run [#33](https://github.com/ValdiaKun/Carousell/actions/runs/38503883716) on 2026-10-14. Unit tests and the debug APK build both succeeded. The APK artifact is named `carousell-companion-debug`; physical-device testing remains outstanding.
+The source is continuously validated by GitHub Actions. Because each commit can change the result, use the [workflow runs page](https://github.com/ValdiaKun/Carousell/actions) to check the latest run for the exact commit you intend to install. A queued or running workflow is not a successful build, and an artifact should only be downloaded from a completed successful run. Physical-device testing remains outstanding.
 
 ## Build and test
 
-The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run JVM unit tests, Android emulator UI tests, and a debug APK build on JDK 17 with Gradle 8.13. The emulator UI test job was recently added and its first run still needs to be verified.
+The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run JVM unit tests, Android emulator UI tests, and a debug APK build on JDK 17 with Gradle 8.13. The emulator UI test job covers native search/edit, system Back navigation, category shortcuts, history removal and persistence, empty search, and theme preference persistence. Check the latest workflow run to verify the current suite; the existence of these tests does not itself mean they have passed.
 
 Download the `carousell-companion-debug` artifact from the relevant successful GitHub Actions run. Install only APKs from a build you trust.
 
