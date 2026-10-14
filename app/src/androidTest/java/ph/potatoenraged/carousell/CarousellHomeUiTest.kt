@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +21,17 @@ import org.junit.runner.RunWith
 class CarousellHomeUiTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
+
+    @Before
+    fun resetAppPreferences() {
+        composeRule.activityRule.scenario.onActivity { activity ->
+            activity.getSharedPreferences("carousell_companion", 0)
+                .edit()
+                .clear()
+                .commit()
+        }
+        composeRule.activityRule.scenario.recreate()
+    }
 
     @Test
     fun searchStaysInsideNativeAppAndCanBeEdited() {
@@ -90,14 +102,6 @@ class CarousellHomeUiTest {
 
     @Test
     fun darkModePreferenceSurvivesActivityRecreation() {
-        composeRule.activityRule.scenario.onActivity { activity ->
-            activity.getSharedPreferences("carousell_companion", 0)
-                .edit()
-                .putBoolean("dark_mode", false)
-                .commit()
-        }
-        composeRule.activityRule.scenario.recreate()
-
         composeRule.onNodeWithContentDescription("Toggle dark mode").performClick()
         composeRule.activityRule.scenario.onActivity { activity ->
             assertTrue(activity.getSharedPreferences("carousell_companion", 0)
