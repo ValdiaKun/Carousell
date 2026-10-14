@@ -124,12 +124,12 @@ private fun CarousellHome(onToggleDarkMode: () -> Unit) {
             .take(MAX_RECENT_SEARCHES)
         saveRecentSearches(context, recentSearches)
 
-        // appendPath safely encodes spaces and special characters as a single search path segment.
-        val target = Uri.parse(CAROUSELL_HOME).buildUpon()
-            .appendPath("search")
-            .appendPath(cleaned)
-            .build()
-        openCarousell(target.toString())
+        val target = buildCarousellSearchUrl(cleaned)
+        if (target == null) {
+            openCarousell()
+        } else {
+            openCarousell(target)
+        }
     }
 
     Column(
