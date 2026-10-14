@@ -51,18 +51,30 @@ import androidx.compose.ui.unit.dp
 private const val CAROUSELL_HOME = "https://www.carousell.ph/"
 private const val PREFERENCES_NAME = "carousell_companion"
 private const val RECENT_SEARCHES_KEY = "recent_searches"
+private const val DARK_MODE_KEY = "dark_mode"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var darkMode by rememberSaveable { mutableStateOf(false) }
+            var darkMode by rememberSaveable {
+                mutableStateOf(
+                    getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+                        .getBoolean(DARK_MODE_KEY, false)
+                )
+            }
             MaterialTheme(
                 colorScheme = if (darkMode) androidx.compose.material3.darkColorScheme()
                 else androidx.compose.material3.lightColorScheme()
             ) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    CarousellHome(onToggleDarkMode = { darkMode = !darkMode })
+                    CarousellHome(onToggleDarkMode = {
+                        darkMode = !darkMode
+                        getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean(DARK_MODE_KEY, darkMode)
+                            .apply()
+                    })
                 }
             }
         }
