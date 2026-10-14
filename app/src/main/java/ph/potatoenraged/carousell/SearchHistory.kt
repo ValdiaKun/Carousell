@@ -1,5 +1,7 @@
 package ph.potatoenraged.carousell
 
+import java.util.Locale
+
 internal const val MAX_RECENT_SEARCHES = 8
 
 internal fun normalizeSearchHistory(searches: List<String>): List<String> {
@@ -7,7 +9,7 @@ internal fun normalizeSearchHistory(searches: List<String>): List<String> {
     searches.forEach { raw ->
         val cleaned = raw.trim()
         if (cleaned.isNotEmpty()) {
-            val key = cleaned.lowercase()
+            val key = cleaned.lowercase(Locale.ROOT)
             if (!unique.containsKey(key)) unique[key] = cleaned
         }
     }
@@ -22,5 +24,10 @@ internal fun addRecentSearch(query: String, current: List<String>): List<String>
     })
 }
 
-internal fun removeRecentSearch(query: String, current: List<String>): List<String> =
-    normalizeSearchHistory(current.filterNot { it.equals(query, ignoreCase = true) })
+internal fun removeRecentSearch(query: String, current: List<String>): List<String> {
+    val cleaned = query.trim()
+    if (cleaned.isEmpty()) return normalizeSearchHistory(current)
+    return normalizeSearchHistory(current.filterNot {
+        it.trim().equals(cleaned, ignoreCase = true)
+    })
+}
