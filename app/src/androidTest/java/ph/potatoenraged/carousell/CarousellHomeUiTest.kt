@@ -59,11 +59,15 @@ class CarousellHomeUiTest {
     }
 
     @Test
-    fun categoryShortcutOpensNativeResults() {
-        composeRule.onNodeWithText("Electronics").performClick()
+    fun everyCategoryShortcutOpensNativeResults() {
+        listOf("Electronics", "Fashion", "Home & Living", "Hobbies", "Vehicles").forEach { category ->
+            composeRule.onNodeWithText(category).performClick()
 
-        composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
-        composeRule.onNodeWithText("Electronics").assertIsDisplayed()
+            composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
+            composeRule.onNodeWithText(category).assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
+        }
     }
 
     @Test
