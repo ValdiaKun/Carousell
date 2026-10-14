@@ -50,6 +50,9 @@ jobs:
           path: app/build/test-results/testDebugUnitTest/
           if-no-files-found: ignore
 
+      - name: Compile Android UI tests
+        run: gradle --no-daemon assembleDebugAndroidTest --stacktrace --console=plain
+
       - name: Run native UI tests on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
