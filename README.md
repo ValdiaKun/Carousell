@@ -1,42 +1,42 @@
 # Carousell Android Companion
 
-A personal-use Android launcher for Carousell Philippines, focused on responsive native controls, quick search handoff, category shortcuts, persistent recent searches, search-history controls, and a persistent light/dark theme preference.
+A personal-use native Android app for Carousell Philippines, built with Kotlin and Jetpack Compose. The project prioritizes a fast native interface, quick search, recent-search history, category shortcuts, and light/dark theme support.
 
 ## Current status
 
-The Kotlin/Jetpack Compose project, persistent recent-search history, dedicated search URL builder, unit tests for search URL encoding and history behavior, persistent theme preference, and GitHub Actions workflow are committed. The app currently opens Carousell's official website for browsing/search handoff; it is **not** yet a full native Carousell client and does not directly access account data, messages, favorites, orders, or seller listings.
+The app has a native home screen and a native search-state screen. Recent searches and the light/dark preference are stored locally on-device. Search submission and category shortcuts stay inside the app; the app no longer launches a browser or the official Carousell app from the search screen.
 
-The debug APK was successfully built by GitHub Actions and the JVM unit tests passed in [workflow run #27](https://github.com/ValdiaKun/Carousell/actions/runs/38501109346) on 2026-10-14. Physical-device testing remains outstanding. Recent searches are stored locally on-device and can be removed individually or cleared.
+**Important limitation:** live marketplace listings are not connected yet. The search screen explicitly explains this instead of showing fabricated products or silently redirecting the user. The app is currently a native UI foundation, not yet a full marketplace client.
 
-## Build
+The latest native-screen build passed GitHub Actions workflow run [#33](https://github.com/ValdiaKun/Carousell/actions/runs/38503883716) on 2026-10-14. Unit tests and the debug APK build both succeeded. The APK artifact is named `carousell-companion-debug`; physical-device testing remains outstanding.
+
+## Build and test
 
 The repository includes a GitHub Actions workflow at `.github/workflows/android-ci.yml`. Pushes to `main`, pull requests targeting `main`, and manual workflow dispatches run `gradle testDebugUnitTest` followed by `gradle assembleDebug` on JDK 17 with Gradle 8.13.
 
-When a build succeeds, download the `carousell-companion-debug` artifact from the corresponding GitHub Actions run. Install only APKs from a build you trust.
+Download the `carousell-companion-debug` artifact from the relevant successful GitHub Actions run. Install only APKs from a build you trust.
 
 ## Planned stack
 
 - Kotlin
 - Jetpack Compose / Material 3
-- Android Gradle Plugin
-- AndroidX lifecycle and Compose state
+- AndroidX activity and lifecycle
+- GitHub Actions CI
 
-## Integration research
+## Integration research and safety
 
-See [`docs/integration-research.md`](docs/integration-research.md) for the repository audit and current integration decision. No supported public consumer API or third-party SDK was identified in the reviewed sources, so the app remains an official-site/app handoff until an authorized integration is confirmed.
-
-## Integration and security principles
+See [`docs/integration-research.md`](docs/integration-research.md) for the current integration research. No supported public consumer API or third-party SDK has been identified in the sources reviewed so far. A genuine native listings experience depends on finding an authorized, permitted data source.
 
 - Do not scrape Carousell or use private/reverse-engineered endpoints.
 - Do not collect or store Carousell credentials in this app.
-- Use official Carousell app/site flows for account-sensitive actions unless an authorized integration becomes available.
-- Verify URL routes and behavior on-device rather than assuming the website's URL structure is stable.
-- Measure performance before claiming optimizations.
+- Do not display invented listings as real marketplace results.
+- Do not claim account, messaging, favorites, orders, or seller-listing support until implemented through a supported integration.
+- Keep all user-facing search UI native; do not replace the app with a browser wrapper.
 
 ## Next milestones
 
-1. Confirm CI unit tests and debug APK build succeed; fix any failures.
-2. Test search handoff and external-app/browser behavior on Android.
-3. Add automated UI tests for the main Compose screen and persisted preferences.
-4. Measure startup, search handoff, and scrolling behavior on a real device.
-5. Investigate official integration options for account-dependent features.
+1. Install and test the latest debug APK on a real Android phone; record any UI or navigation problems.
+2. Improve the native UI and add automated UI coverage for search, recent-search persistence, and theme preference.
+3. Investigate official/authorized listing integration options before implementing real result cards.
+4. Once a permitted data source exists, implement native listing models, loading/error/empty states, result cards, listing details, and local favorites.
+5. Measure startup and interaction performance on-device before claiming optimizations.
