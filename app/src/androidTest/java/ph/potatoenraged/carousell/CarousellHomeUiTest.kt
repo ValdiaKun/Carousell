@@ -1,6 +1,7 @@
 package ph.potatoenraged.carousell
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -41,7 +42,7 @@ class CarousellHomeUiTest {
         composeRule.onNodeWithText("Edit search").performClick()
 
         composeRule.onNodeWithText("Search marketplace").assertIsDisplayed()
-        composeRule.onNodeWithText("iPhone 13").assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assertTextEquals("iPhone 13")
     }
 
     @Test
