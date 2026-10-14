@@ -21,6 +21,10 @@ When a build succeeds, download the `carousell-companion-debug` artifact from th
 - Android Gradle Plugin
 - AndroidX lifecycle and Compose state
 
+## Integration research
+
+See [`docs/integration-research.md`](docs/integration-research.md) for the repository audit and current integration decision. No supported public consumer API or third-party SDK was identified in the reviewed sources, so the app remains an official-site/app handoff until an authorized integration is confirmed.
+
 ## Integration and security principles
 
 - Do not scrape Carousell or use private/reverse-engineered endpoints.
