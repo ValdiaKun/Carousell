@@ -7,7 +7,8 @@ internal fun normalizeSearchHistory(searches: List<String>): List<String> {
     searches.forEach { raw ->
         val cleaned = raw.trim()
         if (cleaned.isNotEmpty()) {
-            unique.putIfAbsent(cleaned.lowercase(), cleaned)
+            val key = cleaned.lowercase()
+            if (!unique.containsKey(key)) unique[key] = cleaned
         }
     }
     return unique.values.take(MAX_RECENT_SEARCHES)
