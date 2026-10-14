@@ -2,6 +2,8 @@ package ph.potatoenraged.carousell
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -18,8 +20,7 @@ class CarousellHomeUiTest {
 
     @Test
     fun searchStaysInsideNativeAppAndCanBeEdited() {
-        composeRule.onNodeWithText("What are you looking for?").performClick()
-        composeRule.onNodeWithText("What are you looking for?").performTextInput("iPhone 13")
+        composeRule.onNode(hasSetTextAction()).performTextInput("iPhone 13")
         composeRule.onNodeWithText("Search marketplace").performClick()
 
         composeRule.onNodeWithText("Native results screen").assertIsDisplayed()
