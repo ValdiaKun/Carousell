@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Button
@@ -154,7 +155,7 @@ private fun CarousellHome(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
             }
             IconButton(onClick = onToggleDarkMode) {
                 Icon(
-                    Icons.Default.DarkMode,
+                    imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = if (isDarkMode) {
                         "Switch to light mode"
                     } else {
